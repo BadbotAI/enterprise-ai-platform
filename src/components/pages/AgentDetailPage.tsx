@@ -668,7 +668,19 @@ export function AgentDetailPage({ userMode }: AgentDetailPageProps) {
   }
 
   const Icon = getAgentIcon(agent.name);
-  const isGeneralService = agent.tags?.includes('通用服务') ?? false;
+
+  // 智能体 web 服务地址（来自 Excel「3月基地评估」）
+  const TRIAL_URLS: Record<string, string> = {
+    '3':  'https://hiagent.xmschain.com/product/llm/chat/d6gm8rcl59d9ouc7earg',       // 粮食产量预测
+    '4':  'https://hiagent.xmschain.com/product/llm/chat/d63i0bsl59d9ouc74jv0',       // 粮食价格预测
+    '6':  'https://hiagent.xmschain.com/product/llm/chat/d66im48svobk8pp4irng',       // 库存智能分析
+    '9':  'https://ironstone.app.xmschain.com/web/agent-app/chat/1925',               // 价格预测(铁矿石)
+    '10': 'https://ironstone.app.xmschain.com/web/agent-app/chat/1886',               // 供应分析
+    '11': 'https://ironstone.app.xmschain.com/web/agent-app/chat/1884',               // 供需平衡
+    'draft-3': 'https://ironstone.app.xmschain.com/web/agent-app/chat/1697',          // 需求分析
+  };
+  const trialUrl = agentId ? TRIAL_URLS[agentId] : undefined;
+  const hasTrialUrl = !!trialUrl;
 
   return (
     <div className="px-8 pt-6 pb-8">
@@ -705,17 +717,19 @@ export function AgentDetailPage({ userMode }: AgentDetailPageProps) {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
-              onClick={() => { if (!isGeneralService) setShowTrial(prev => !prev); }}
-              disabled={isGeneralService}
+              onClick={() => {
+                if (hasTrialUrl) {
+                  window.open(trialUrl, '_blank', 'noopener');
+                }
+              }}
+              disabled={!hasTrialUrl}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm transition-all border ${
-                isGeneralService
+                !hasTrialUrl
                   ? 'border-[#e2e8f0] text-[#c9cdd4] bg-[#f8f9fa] cursor-not-allowed'
-                  : showTrial
-                    ? 'bg-[#0d1b2a] text-white border-[#0d1b2a]'
-                    : 'border-[#e2e8f0] text-[#4a5b73] hover:bg-[#f4f6fa]'
+                  : 'border-[#e2e8f0] text-[#4a5b73] hover:bg-[#f4f6fa]'
               }`}
               style={{ fontWeight: 500 }}
-              title={isGeneralService ? '通用模型暂不支持试用' : undefined}>
+              title={!hasTrialUrl ? '暂无试用地址' : '打开试用页面'}>
               <Play className="w-3.5 h-3.5" />试用
             </button>
             <button onClick={() => setInstalled(prev => !prev)}
