@@ -42,30 +42,18 @@ export function AgentWarehouseDetailPage() {
 
   const detail = agentId ? AGENT_DETAILS[agentId] : undefined;
 
-  const [showTrial, setShowTrial] = useState(false);
-  const [trialInput, setTrialInput] = useState('');
-  const [trialMessages, setTrialMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
-  const [trialLoading, setTrialLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [trialMessages]);
-
-  const handleTrial = () => {
-    if (!trialInput.trim() || trialLoading) return;
-    const userMsg = trialInput.trim();
-    setTrialMessages(prev => [...prev, { role: 'user', content: userMsg }]);
-    setTrialInput('');
-    setTrialLoading(true);
-    setTimeout(() => {
-      setTrialMessages(prev => [...prev, {
-        role: 'assistant',
-        content: detail?.trialResponse || `基于「${agent?.name}」的分析结果：\n\n已对您的输入进行处理，生成分析报告如下...`,
-      }]);
-      setTrialLoading(false);
-    }, 1500);
+  // 智能体 web 服务地址
+  const TRIAL_URLS: Record<string, string> = {
+    '3':  'https://hiagent.xmschain.com/product/llm/chat/d6gm8rcl59d9ouc7earg',
+    '4':  'https://hiagent.xmschain.com/product/llm/chat/d63i0bsl59d9ouc74jv0',
+    '6':  'https://hiagent.xmschain.com/product/llm/chat/d66im48svobk8pp4irng',
+    '9':  'https://ironstone.app.xmschain.com/web/agent-app/chat/1925',
+    '10': 'https://ironstone.app.xmschain.com/web/agent-app/chat/1886',
+    '11': 'https://ironstone.app.xmschain.com/web/agent-app/chat/1884',
+    'draft-3': 'https://ironstone.app.xmschain.com/web/agent-app/chat/1697',
   };
+  const trialUrl = agentId ? TRIAL_URLS[agentId] : undefined;
+  const hasTrialUrl = !!trialUrl;
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -155,13 +143,15 @@ export function AgentWarehouseDetailPage() {
                 {/* Action button: 试用 */}
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
-                    onClick={() => setShowTrial(prev => !prev)}
+                    onClick={() => { if (hasTrialUrl) window.open(trialUrl, '_blank', 'noopener'); }}
+                    disabled={!hasTrialUrl}
                     className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm transition-all border ${
-                      showTrial
-                        ? 'bg-[#0d1b2a] text-white border-[#0d1b2a]'
+                      !hasTrialUrl
+                        ? 'border-[#e2e8f0] text-[#c9cdd4] bg-[#f8f9fa] cursor-not-allowed'
                         : 'border-[#e2e8f0] text-[#4a5b73] hover:bg-[#f4f6fa]'
                     }`}
                     style={{ fontWeight: 500 }}
+                    title={!hasTrialUrl ? '暂无试用地址' : '打开试用页面'}
                   >
                     <Play className="w-3.5 h-3.5" />试用
                   </button>
@@ -428,65 +418,6 @@ export function AgentWarehouseDetailPage() {
         </div>
       </div>
 
-      {/* Trial slide-in panel */}
-      {showTrial && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowTrial(false)} />
-          <div className="relative w-[420px] h-full bg-white/95 backdrop-blur-xl border-l border-[#e2e8f0] flex flex-col shadow-2xl">
-            <div className="px-5 py-4 border-b border-[#e2e8f0] flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#0d1b2a]" />
-                <span className="text-sm text-[#0d1b2a]" style={{ fontWeight: 500 }}>试用 · {agent.name}</span>
-              </div>
-              <button onClick={() => setShowTrial(false)} className="p-1 hover:bg-[#edf1f8] rounded-lg transition-colors">
-                <X className="w-4 h-4 text-[#7d8da1]" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 scrollbar-subtle">
-              {trialMessages.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <Bot className="w-10 h-10 text-[#a3b1c6] mb-3" />
-                  <p className="text-sm text-[#7d8da1] mb-1">发送消息开始试用</p>
-                  <p className="text-xs text-[#a3b1c6]">输入您的问题，体验智能体能力</p>
-                </div>
-              )}
-              {trialMessages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] px-4 py-3 rounded-xl text-sm whitespace-pre-wrap ${
-                    msg.role === 'user' ? 'bg-[#0d1b2a] text-white' : 'bg-[#f4f6fa] text-[#4a5b73] border border-[#edf1f8]'
-                  }`}>
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-              {trialLoading && (
-                <div className="flex justify-start">
-                  <div className="px-4 py-3 rounded-xl bg-[#f4f6fa] border border-[#edf1f8]">
-                    <Loader2 className="w-4 h-4 text-[#7d8da1] animate-spin" />
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-            <div className="px-5 py-4 border-t border-[#e2e8f0] flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={trialInput}
-                  onChange={(e) => setTrialInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleTrial()}
-                  placeholder="输入您的问题..."
-                  className="flex-1 px-4 py-2.5 border border-[#e2e8f0] rounded-lg text-sm text-[#0d1b2a] placeholder-[#a3b1c6] focus:outline-none focus:ring-1 focus:ring-[#0d1b2a]/20 bg-white/70"
-                />
-                <button onClick={handleTrial} disabled={!trialInput.trim() || trialLoading}
-                  className="p-2.5 bg-[#0d1b2a] text-white rounded-lg hover:bg-[#1b2d45] disabled:opacity-40 transition-colors">
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
