@@ -621,31 +621,7 @@ export function AgentDetailPage({ userMode }: AgentDetailPageProps) {
   const agent = mockAgents.find((a) => a.id === agentId);
   const detail = agentId ? AGENT_DETAILS[agentId] : undefined;
 
-  const [showTrial, setShowTrial] = useState(false);
-  const [trialInput, setTrialInput] = useState('');
-  const [trialMessages, setTrialMessages] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
-  const [trialLoading, setTrialLoading] = useState(false);
   const [installed, setInstalled] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [trialMessages]);
-
-  const handleTrial = () => {
-    if (!trialInput.trim() || trialLoading) return;
-    const userMsg = trialInput.trim();
-    setTrialMessages(prev => [...prev, { role: 'user', content: userMsg }]);
-    setTrialInput('');
-    setTrialLoading(true);
-    setTimeout(() => {
-      setTrialMessages(prev => [...prev, {
-        role: 'assistant',
-        content: detail?.trialResponse || `基于「${agent?.name}」的分析结果：\n\n已对您的输入进行处理，识别到关键信号，分析报告生成中...`,
-      }]);
-      setTrialLoading(false);
-    }, 1500);
-  };
 
   const copyCode = (code: string) => { navigator.clipboard.writeText(code); };
 
@@ -967,59 +943,6 @@ export function AgentDetailPage({ userMode }: AgentDetailPageProps) {
         </div>
       </div>
 
-      {/* Trial slide-in panel */}
-      {showTrial && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end">
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setShowTrial(false)} />
-          <div className="relative w-[420px] h-full bg-white/95 backdrop-blur-xl border-l border-[#e2e8f0] flex flex-col shadow-2xl">
-            <div className="px-5 py-4 border-b border-[#e2e8f0] flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#0d1b2a]" />
-                <span className="text-sm text-[#0d1b2a]" style={{ fontWeight: 500 }}>试用 · {agent.name}</span>
-              </div>
-              <button onClick={() => setShowTrial(false)} className="p-1 hover:bg-[#edf1f8] rounded-lg transition-colors">
-                <X className="w-4 h-4 text-[#7d8da1]" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 scrollbar-subtle">
-              {trialMessages.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <Bot className="w-10 h-10 text-[#a3b1c6] mb-3" />
-                  <p className="text-sm text-[#7d8da1] mb-1">发送消息开始试用</p>
-                  <p className="text-xs text-[#a3b1c6]">例如：{detail?.inputExample?.replace(/"/g, '').substring(0, 30) || '输入您的问题'}...</p>
-                </div>
-              )}
-              {trialMessages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] px-4 py-3 rounded-xl text-sm whitespace-pre-wrap ${msg.role === 'user' ? 'bg-[#0d1b2a] text-white' : 'bg-[#f4f6fa] text-[#4a5b73] border border-[#edf1f8]'}`}>
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-              {trialLoading && (
-                <div className="flex justify-start">
-                  <div className="px-4 py-3 rounded-xl bg-[#f4f6fa] border border-[#edf1f8]">
-                    <Loader2 className="w-4 h-4 text-[#7d8da1] animate-spin" />
-                  </div>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-            <div className="px-5 py-4 border-t border-[#e2e8f0] flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <input type="text" value={trialInput} onChange={(e) => setTrialInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleTrial()}
-                  placeholder="输入您的问题..."
-                  className="flex-1 px-4 py-2.5 border border-[#e2e8f0] rounded-lg text-sm text-[#0d1b2a] placeholder-[#a3b1c6] focus:outline-none focus:ring-1 focus:ring-[#0d1b2a]/20 bg-white/70" />
-                <button onClick={handleTrial} disabled={!trialInput.trim() || trialLoading}
-                  className="p-2.5 bg-[#0d1b2a] text-white rounded-lg hover:bg-[#1b2d45] disabled:opacity-40 transition-colors">
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
