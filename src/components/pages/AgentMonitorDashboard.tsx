@@ -2755,23 +2755,21 @@ export function AgentMonitorDashboard() {
               background: '#fafbfd',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ fontSize: T.fz.body, fontWeight: T.w.semibold, color: C.text.sec }}>
                 智能体效果监控
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: T.fz.sm, color: C.text.tri }}>
-                  达标率：<span style={{ fontFamily: T.num, fontWeight: T.w.semibold, color: C.text.pri }}>{AGENT_EFFECTIVENESS_ROWS.length}/{AGENT_EFFECTIVENESS_ROWS.length}</span> 达标
-                </span>
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 4,
-                  padding: '2px 10px', borderRadius: 4,
-                  background: '#00b578', color: '#fff',
-                  fontSize: T.fz.sm, fontWeight: T.w.semibold, letterSpacing: 1,
-                }}>
-                  优
-                </span>
-              </div>
+              <span style={{ fontSize: T.fz.sm, color: C.text.tri }}>
+                达标率：<span style={{ fontFamily: T.num, fontWeight: T.w.semibold, color: C.text.pri }}>{AGENT_EFFECTIVENESS_ROWS.length}/{AGENT_EFFECTIVENESS_ROWS.length}</span> 达标
+              </span>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center',
+                padding: '2px 10px', borderRadius: 4,
+                background: '#00b578', color: '#fff',
+                fontSize: T.fz.sm, fontWeight: T.w.semibold, letterSpacing: 1,
+              }}>
+                优
+              </span>
             </div>
           </div>
           <div style={{ overflowX: 'auto' }}>
